@@ -17,7 +17,7 @@ auth_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
         \"password\": \"$ZABBIX_PASS\"
     },
     \"id\": 1
-}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+}" 'https://your_host/zabbix/api_jsonrpc.php')
 auth_token=$(echo "$auth_response" | jq -r '.result')
 
 if [ -z "$auth_token" ]; then
@@ -38,7 +38,7 @@ hostid_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
     },
     \"auth\": \"$auth_token\",
     \"id\": 2
-}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+}" 'https://your_host/zabbix/api_jsonrpc.php')
 hostid=$(echo "$hostid_response" | jq -r '.result[0].hostid // empty')
 
 if [ -z "$hostid" ]; then
@@ -80,7 +80,7 @@ events_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
     },
     \"auth\": \"$auth_token\",
     \"id\": 3
-}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+}" 'https://your_host/zabbix/api_jsonrpc.php')
 
 # Выводим информацию о событиях в удобном для чтения формате
 echo "$events_response" | jq '.result[] | {

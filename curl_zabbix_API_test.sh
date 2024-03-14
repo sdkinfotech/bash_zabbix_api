@@ -12,6 +12,6 @@ response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
         \"password\": \"$zabbix_password\"
     },
     \"id\": 1
-}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+}" 'https://your_host/zabbix/api_jsonrpc.php')
 
 echo "Ответ сервера Zabbix: $response"

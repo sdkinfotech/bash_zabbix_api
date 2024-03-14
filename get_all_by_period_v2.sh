@@ -17,7 +17,7 @@ source .env
 auth_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" \
     -d "{\"jsonrpc\": \"2.0\", \"method\": \"user.login\", \"params\": \
     {\"user\": \"$ZABBIX_USER\", \"password\": \"$ZABBIX_PASS\"}, \"id\": 1}" \
-    'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+    'https://your_host/zabbix/api_jsonrpc.php')
 auth_token=$(echo "$auth_response" | jq -r '.result')
 
 if [ -z "$auth_token" ]; then
@@ -67,7 +67,7 @@ events_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" \
     },
     \"auth\": \"$auth_token\",
     \"id\": 2
-}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+}" 'https://your_host/zabbix/api_jsonrpc.php')
 
 # Валидация ответа от API
 if ! (echo "$events_response" | jq . &> /dev/null); then
