@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Загружаем учетные данные из файла .env
+if [ ! -f .env ]; then
+    echo "Файл .env не найден!"
+    exit 1
+fi
+
+source .env
+
+# Аутентификация в Zabbix API для получения auth token
+auth_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"user.login\",
+    \"params\": {
+        \"user\": \"$ZABBIX_USER\",
+        \"password\": \"$ZABBIX_PASS\"
+    },
+    \"id\": 1
+}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+auth_token=$(echo "$auth_response" | jq -r '.result')
+
+if [ -z "$auth_token" ] || [ "$auth_token" == "null" ]; then
+    echo "Не удалось получить токен аутентификации. Проверьте логин и пароль."
+    exit 1
+fi
+
+# Запрашиваем имя хоста
+read -p "Введите имя хоста: " host_name
+
+# Делаем запрос на получение ID хоста
+hostid_response=$(curl -s -X POST -H "Content-Type: application/json-rpc" -d "{
+    \"jsonrpc\": \"2.0\",
+    \"method\": \"host.get\",
+    \"params\": {
+        \"output\": [\"hostid\"],
+        \"filter\": { \"host\": [\"$host_name\"] }
+    },
+    \"auth\": \"$auth_token\",
+    \"id\": 2
+}" 'https://zabbix.finam.ru/zabbix/api_jsonrpc.php')
+
+# Получаем и выводим ID хоста
+hostid=$(echo "$hostid_response" | jq -r '.result[].hostid // empty')
+if [ -z "$hostid" ]; then
+    echo "Хост с именем \"$host_name\" не найден."
+else
+    echo "ID хоста \"$host_name\": $hostid"
+fi
